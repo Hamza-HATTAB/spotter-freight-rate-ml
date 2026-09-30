@@ -1,7 +1,4 @@
-"""
-Full pipeline: train on all 48k rows, generate validation predictions,
-and produce December forecast for Lexington -> Fort Wayne.
-"""
+# train on full 48k loads and predict holdout
 from __future__ import annotations
 
 from pathlib import Path
@@ -34,18 +31,15 @@ def _predict_rates(
     X = get_feature_matrix(df)
     alpha_hat = model.predict(X)
     alpha_hat = np.clip(alpha_hat, *ALPHA_CLIP)
+    # calculate baseline distance * quote_singal
     baseline = df["distance"].clip(lower=1.0) * df["quote_signal"]
     rates = baseline.values * alpha_hat
-    # guarantee positive rates after clip
+    # gaurantee positive rates after clip
     return np.maximum(rates, 1.0)
 
 
 def _compute_december_quote_signal(val: pd.DataFrame) -> dict:
-    """
-    Daily mean quote_signal across all equipment types in validation set,
-    then 7-day rolling mean to smooth day-to-day noise.
-    Using all equipment (not just Dry Van) for larger sample per day.
-    """
+    # 7-day rolling mean on daily quote_signal
     daily = (
         val.groupby("date")["quote_signal"]
         .mean()
@@ -92,7 +86,6 @@ def run() -> None:
         print(f"  {missing_qs} December dates missing quote_signal — using fallback {fallback_qs:.4f}")
         dec["quote_signal"] = dec["quote_signal"].fillna(fallback_qs)
 
-    # December CSV has `weight` column; add weight_clean for feature engineering
     dec["weight_clean"] = dec["weight"].abs()
 
     dec = engineer(dec)

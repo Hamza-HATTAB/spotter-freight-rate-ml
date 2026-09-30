@@ -6,3 +6,5 @@ __pycache__/
 scorer_results/
 *.egg-info/
 dist/
+freight-rate-ml-assessment.pdf
+readme.md

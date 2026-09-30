@@ -1,7 +1,4 @@
-"""
-Data loading and cleaning pipeline.
-Handles sign inversion on weight, missing value imputation, and schema validation.
-"""
+# data load & clean
 from __future__ import annotations
 
 from pathlib import Path
@@ -25,7 +22,7 @@ REQUIRED_VAL_COLS = {
 
 
 def _impute_weight(df: pd.DataFrame) -> pd.DataFrame:
-    """Stratified median imputation by equipment type for missing weight rows."""
+    # fill nulls using meidan by equipment
     medians = (
         df.groupby("equipment")["weight_clean"]
         .median()
@@ -89,9 +86,6 @@ def load_december() -> pd.DataFrame:
 
 
 def build_alpha(df: pd.DataFrame) -> pd.Series:
-    """
-    Compute ratio target: alpha = posted_rate / (distance * quote_signal).
-    Distance is floored at 1.0 mi to avoid division by zero on pathological rows.
-    """
+    # calculate ratio target alpha
     baseline = df["distance"].clip(lower=1.0) * df["quote_signal"]
     return df["posted_rate"] / baseline

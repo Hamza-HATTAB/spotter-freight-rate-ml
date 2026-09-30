@@ -1,13 +1,4 @@
-"""
-Rolling-origin temporal validation.
-
-Two folds:
-  Fold 1: train Jan-Jun, test Jul-Aug
-  Fold 2: train Jan-Aug, test Sep-Oct
-
-This mirrors the actual deployment setting where the model is trained on
-past loads and evaluated on a forward window it never saw.
-"""
+# rolling origin temporal splits
 from __future__ import annotations
 
 import numpy as np
@@ -30,7 +21,7 @@ def _mae(y_true, y_pred):
 
 
 def _medape(y_true, y_pred):
-    # median absolute percentage error
+    # meidan absolute percentage error
     return float(np.median(np.abs((y_true - y_pred) / y_true))) * 100
 
 
@@ -58,6 +49,7 @@ def run_validation() -> list[dict]:
         y_te_rate = te["posted_rate"].values
         baseline_te = te["distance"].clip(lower=1.0) * te["quote_signal"]
 
+        # L1 loss minimises conditional median
         model = HistGradientBoostingRegressor(
             loss="absolute_error",
             max_iter=300,
