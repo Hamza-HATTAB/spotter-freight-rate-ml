@@ -1,0 +1,8 @@
+.venv/
+docs/
+__pycache__/
+*.pyc
+.DS_Store
+scorer_results/
+*.egg-info/
+dist/
